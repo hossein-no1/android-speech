@@ -1,4 +1,4 @@
-package net.gotev.speech.engine;
+package ir.huma.voiceassistant;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +14,7 @@ import net.gotev.speech.GoogleVoiceTypingDisabledException;
 import net.gotev.speech.SpeechRecognitionException;
 import net.gotev.speech.SpeechRecognitionNotAvailable;
 import net.gotev.speech.Logger;
+import net.gotev.speech.engine.SpeechRecognitionEngine;
 import net.gotev.speech.ui.SpeechProgressView;
 
 import java.util.ArrayList;
@@ -381,4 +382,9 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
         unregisterDelegate();
     }
+    
+    public SpeechRecognizer getSpeechRecognizer() {
+        return mSpeechRecognizer;
+    }
+    
 }
