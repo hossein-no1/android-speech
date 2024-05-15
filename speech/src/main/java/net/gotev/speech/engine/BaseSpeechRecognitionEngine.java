@@ -1,4 +1,4 @@
-package ir.huma.voiceassistant;
+package net.gotev.speech.engine;
 
 import android.content.Context;
 import android.content.Intent;
@@ -384,7 +384,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     }
     
     public SpeechRecognizer getSpeechRecognizer() {
-        return mSpeechRecognizer;
+        return this.mSpeechRecognizer;
     }
     
 }

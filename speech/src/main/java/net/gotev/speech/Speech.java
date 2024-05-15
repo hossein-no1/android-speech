@@ -12,13 +12,15 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
 
 import net.gotev.speech.engine.BaseSpeechRecognitionEngine;
+import net.gotev.speech.engine.BaseTextToSpeechEngine;
 import net.gotev.speech.engine.DummyOnInitListener;
 import net.gotev.speech.engine.SpeechRecognitionEngine;
-import net.gotev.speech.engine.BaseTextToSpeechEngine;
 import net.gotev.speech.engine.TextToSpeechEngine;
 import net.gotev.speech.ui.SpeechProgressView;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Helper class to easily work with Android speech recognition.
