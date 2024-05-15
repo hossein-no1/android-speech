@@ -2,6 +2,7 @@ package net.gotev.speech.engine;
 
 import android.content.Context;
 import android.speech.RecognitionListener;
+import android.speech.SpeechRecognizer;
 
 import net.gotev.speech.SpeechDelegate;
 import net.gotev.speech.GoogleVoiceTypingDisabledException;
@@ -45,4 +46,7 @@ public interface SpeechRecognitionEngine extends RecognitionListener {
     void setCallingPackage(String callingPackage);
 
     void unregisterDelegate();
+
+    SpeechRecognizer getSpeechRecognizer();
+
 }

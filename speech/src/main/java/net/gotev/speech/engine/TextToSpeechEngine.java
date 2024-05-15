@@ -1,6 +1,7 @@
 package net.gotev.speech.engine;
 
 import android.content.Context;
+import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
 
@@ -38,4 +39,6 @@ public interface TextToSpeechEngine {
     List<Voice> getSupportedVoices();
 
     Voice getCurrentVoice();
+
+    SpeechRecognizer getSpeechRecognizer();
 }

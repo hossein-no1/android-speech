@@ -328,6 +328,11 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     }
 
     @Override
+    public SpeechRecognizer getSpeechRecognizer() {
+        return this.mSpeechRecognizer;
+    }
+
+    @Override
     public void setPreferOffline(boolean preferOffline) {
         mPreferOffline = preferOffline;
     }
@@ -382,9 +387,5 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
         unregisterDelegate();
     }
-    
-    public SpeechRecognizer getSpeechRecognizer() {
-        return this.mSpeechRecognizer;
-    }
-    
+
 }

@@ -3,6 +3,7 @@ package net.gotev.speech.engine;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.speech.tts.Voice;
@@ -163,5 +164,10 @@ public class BaseTextToSpeechEngine implements TextToSpeechEngine {
         }
 
         return null;
+    }
+
+    @Override
+    public SpeechRecognizer getSpeechRecognizer() {
+        return this.getSpeechRecognizer();
     }
 }
