@@ -36,7 +36,12 @@ public class Speech {
 
     private TextToSpeechEngine textToSpeechEngine;
 
+
     private SpeechRecognitionEngine speechRecognitionEngine;
+
+    public SpeechRecognitionEngine getSpeechRecognitionEngine() {
+        return speechRecognitionEngine;
+    }
 
     private Speech(final Context context, final String callingPackage, TextToSpeech.OnInitListener onInitListener, SpeechRecognitionEngine speechRecognitionEngine, TextToSpeechEngine textToSpeechEngine) {
         mContext = context;
