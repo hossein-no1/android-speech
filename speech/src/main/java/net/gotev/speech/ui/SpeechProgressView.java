@@ -20,12 +20,12 @@ public class SpeechProgressView extends View {
 
     public static final int BARS_COUNT = 5;
 
-    private static final int CIRCLE_RADIUS_DP = 5;
-    private static final int CIRCLE_SPACING_DP = 11;
-    private static final int ROTATION_RADIUS_DP = 25;
+    private static final int CIRCLE_RADIUS_DP = 3;
+    private static final int CIRCLE_SPACING_DP = 3;
+    private static final int ROTATION_RADIUS_DP = 17;
     private static final int IDLE_FLOATING_AMPLITUDE_DP = 3;
 
-    private static final int[] DEFAULT_BARS_HEIGHT_DP = {60, 46, 70, 54, 64};
+    private static final int[] DEFAULT_BARS_HEIGHT_DP = {40, 40, 40, 40, 40};
 
     private static final float MDPI_DENSITY = 1.5f;
 
@@ -46,14 +46,14 @@ public class SpeechProgressView extends View {
     private int barColor = -1;
 
     private int[] barColors = {
-            Color.parseColor("#3164d7"),
-            Color.parseColor("#d92d29"),
-            Color.parseColor("#eeaa10"),
-            Color.parseColor("#3164d7"),
-            Color.parseColor("#2e9641")
+            Color.parseColor("#F5F5F5"),
+            Color.parseColor("#F5F5F5"),
+            Color.parseColor("#F5F5F5"),
+            Color.parseColor("#F5F5F5"),
+            Color.parseColor("#F5F5F5")
     };
 
-    private int[] barMaxHeights = {60, 76, 58, 80, 55};
+    private int[] barMaxHeights = {40, 40, 40, 40, 40};
 
     public SpeechProgressView(Context context) {
         super(context);
@@ -93,6 +93,7 @@ public class SpeechProgressView extends View {
 
     /**
      * Set one color to all bars in view
+     *
      * @param color bar color
      */
     public void setSingleColor(int color) {
