@@ -155,6 +155,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     @Override
     public void onError(final int code) {
         Logger.error(LOG_TAG, "Speech recognition error", new SpeechRecognitionException(code));
+        returnPartialResultsAndRecreateSpeechRecognizer();
     }
 
     @Override
@@ -302,8 +303,11 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     public void returnPartialResultsAndRecreateSpeechRecognizer() {
         mIsListening = false;
         try {
-            if (mDelegate != null)
-                mDelegate.onSpeechResult(getPartialResultsAsString());
+            if (mDelegate != null) {
+                String partialResultAsString = getPartialResultsAsString();
+                if (!partialResultAsString.trim().isEmpty())
+                    mDelegate.onSpeechResult(partialResultAsString);
+            }
         } catch (final Throwable exc) {
             Logger.error(getClass().getSimpleName(),
                     "Unhandled exception in delegate onSpeechResult", exc);
