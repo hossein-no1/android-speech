@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.util.Log;
 import android.widget.LinearLayout;
 
 import net.gotev.speech.DelayedOperation;
@@ -143,11 +144,11 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
         try {
             if (mDelegate != null) {
                 if (result == null || result.trim().isEmpty()) {
-                    Logger.info(getClass().getSimpleName(), "No speech results, getting partial");
+                    Log.i(getClass().getSimpleName(), "No speech results, getting partial");
                     onError(ERROR_SILENCE);
                 }
                 else {
-                    Logger.info(getClass().getSimpleName(), "Result : [" + result + "]");
+                    Log.i(getClass().getSimpleName(), "Result : [" + result + "]");
                     mDelegate.onSpeechResult(result.trim());
                 }
 
