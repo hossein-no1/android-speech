@@ -142,10 +142,14 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
         try {
             if (mDelegate != null) {
-                if (!result.trim().isEmpty())
+                if (result == null || result.trim().isEmpty()) {
+                    Logger.info(getClass().getSimpleName(), "No speech results, getting partial");
+                    onError(ERROR_SILENCE);
+                }
+                else {
+                    Logger.info(getClass().getSimpleName(), "Result : [" + result + "]");
                     mDelegate.onSpeechResult(result.trim());
-                else
-                    onError(SpeechRecognitionException.ERROR_SILENCE);
+                }
 
             }
         } catch (final Throwable exc) {
