@@ -284,4 +284,104 @@ public class SpeechProgressView extends View {
         stop();
         play();
     }
+
+    public List<SpeechBar> getSpeechBars() {
+        return speechBars;
+    }
+
+    public Paint getPaint() {
+        return paint;
+    }
+
+    public void setPaint(Paint paint) {
+        this.paint = paint;
+    }
+
+    public BarParamsAnimator getAnimator() {
+        return animator;
+    }
+
+    public void setAnimator(BarParamsAnimator animator) {
+        this.animator = animator;
+    }
+
+    public int getRadius() {
+        return radius;
+    }
+
+    public void setRadius(int radius) {
+        this.radius = radius;
+    }
+
+    public int getSpacing() {
+        return spacing;
+    }
+
+    public void setSpacing(int spacing) {
+        this.spacing = spacing;
+    }
+
+    public int getRotationRadius() {
+        return rotationRadius;
+    }
+
+    public void setRotationRadius(int rotationRadius) {
+        this.rotationRadius = rotationRadius;
+    }
+
+    public int getAmplitude() {
+        return amplitude;
+    }
+
+    public void setAmplitude(int amplitude) {
+        this.amplitude = amplitude;
+    }
+
+    public float getDensity() {
+        return density;
+    }
+
+    public void setDensity(float density) {
+        this.density = density;
+    }
+
+    public boolean isSpeaking() {
+        return isSpeaking;
+    }
+
+    public void setSpeaking(boolean speaking) {
+        isSpeaking = speaking;
+    }
+
+    public boolean isAnimating() {
+        return animating;
+    }
+
+    public void setAnimating(boolean animating) {
+        this.animating = animating;
+    }
+
+    public int getBarColor() {
+        return barColor;
+    }
+
+    public void setBarColor(int barColor) {
+        this.barColor = barColor;
+    }
+
+    public int[] getBarColors() {
+        return barColors;
+    }
+
+    public void setBarColors(int[] barColors) {
+        this.barColors = barColors;
+    }
+
+    public int[] getBarMaxHeights() {
+        return barMaxHeights;
+    }
+
+    public void setBarMaxHeights(int[] barMaxHeights) {
+        this.barMaxHeights = barMaxHeights;
+    }
 }

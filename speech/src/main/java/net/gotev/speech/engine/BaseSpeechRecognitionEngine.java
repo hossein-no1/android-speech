@@ -155,7 +155,6 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     @Override
     public void onError(final int code) {
         Logger.error(LOG_TAG, "Speech recognition error", new SpeechRecognitionException(code));
-        returnPartialResultsAndRecreateSpeechRecognizer();
     }
 
     @Override
