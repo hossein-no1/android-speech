@@ -17,7 +17,6 @@ import net.gotev.speech.GoogleVoiceTypingDisabledException;
 import net.gotev.speech.SpeechRecognitionException;
 import net.gotev.speech.SpeechRecognitionNotAvailable;
 import net.gotev.speech.Logger;
-import net.gotev.speech.engine.SpeechRecognitionEngine;
 import net.gotev.speech.ui.SpeechProgressView;
 
 import java.util.ArrayList;
@@ -167,7 +166,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     @Override
     public void onError(final int code) {
         Logger.error(LOG_TAG, "Speech recognition error", new SpeechRecognitionException(code));
-        returnPartialResultsAndRecreateSpeechRecognizer();
+        recreateSpeechRecognizer();
     }
 
     @Override
@@ -315,14 +314,31 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     public void returnPartialResultsAndRecreateSpeechRecognizer() {
         mIsListening = false;
         try {
+            String result = getPartialResultsAsString();
             if (mDelegate != null) {
-                mDelegate.onSpeechResult(getPartialResultsAsString());
+                if (result == null || result.trim().isEmpty()) {
+                    Log.i(getClass().getSimpleName(), "No speech results, getting partial");
+                    onError(ERROR_SILENCE);
+                }
+                else {
+                    Log.i(getClass().getSimpleName(), "Result : [" + result + "]");
+                    mDelegate.onSpeechResult(result.trim());
+                }
+
             }
         } catch (final Throwable exc) {
             Logger.error(getClass().getSimpleName(),
                     "Unhandled exception in delegate onSpeechResult", exc);
         }
 
+        if (mProgressView != null)
+            mProgressView.onResultOrOnError();
+
+        initSpeechRecognizer(mContext);
+    }
+
+    public void recreateSpeechRecognizer(){
+        mIsListening = false;
         if (mProgressView != null)
             mProgressView.onResultOrOnError();
 
