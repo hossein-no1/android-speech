@@ -1,5 +1,7 @@
 package net.gotev.speech.engine;
 
+import static net.gotev.speech.SpeechRecognitionException.ERROR_SILENCE;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -139,8 +141,13 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
         mIsListening = false;
 
         try {
-            if (mDelegate != null)
-                mDelegate.onSpeechResult(result.trim());
+            if (mDelegate != null) {
+                if (!result.trim().isEmpty())
+                    mDelegate.onSpeechResult(result.trim());
+                else
+                    onError(SpeechRecognitionException.ERROR_SILENCE);
+
+            }
         } catch (final Throwable exc) {
             Logger.error(getClass().getSimpleName(),
                     "Unhandled exception in delegate onSpeechResult", exc);
@@ -304,9 +311,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
         mIsListening = false;
         try {
             if (mDelegate != null) {
-                String partialResultAsString = getPartialResultsAsString();
-                if (!partialResultAsString.trim().isEmpty())
-                    mDelegate.onSpeechResult(partialResultAsString);
+                mDelegate.onSpeechResult(getPartialResultsAsString());
             }
         } catch (final Throwable exc) {
             Logger.error(getClass().getSimpleName(),

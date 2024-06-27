@@ -10,6 +10,7 @@ import android.speech.SpeechRecognizer;
 public class SpeechRecognitionException extends Exception {
 
     private int code;
+    public static final int ERROR_SILENCE = 101;
 
     public SpeechRecognitionException(int code) {
         super(getMessage(code));
@@ -21,7 +22,7 @@ public class SpeechRecognitionException extends Exception {
 
         // these have been mapped from here:
         // https://developer.android.com/reference/android/speech/SpeechRecognizer.html
-        switch(code) {
+        switch (code) {
             case SpeechRecognizer.ERROR_AUDIO:
                 message = code + " - Audio recording error";
                 break;
@@ -57,6 +58,10 @@ public class SpeechRecognitionException extends Exception {
 
             case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
                 message = code + " - No speech input";
+                break;
+
+            case ERROR_SILENCE:
+                message = code + " - User silence";
                 break;
 
             default:
