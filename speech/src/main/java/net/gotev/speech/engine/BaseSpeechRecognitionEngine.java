@@ -1,5 +1,6 @@
 package net.gotev.speech.engine;
 
+import static net.gotev.speech.SpeechRecognitionException.ERROR_AMBIGUATE;
 import static net.gotev.speech.SpeechRecognitionException.ERROR_SILENCE;
 
 import android.content.Context;
@@ -26,6 +27,8 @@ import java.util.Locale;
 
 public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     private static final String LOG_TAG = BaseSpeechRecognitionEngine.class.getSimpleName();
+    // Decibel is between -2 and 10
+    private static final float DECIBEL_SENSOR = 8F;
 
     private Context mContext;
 
@@ -47,6 +50,8 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     private long mLastActionTimestamp;
     private long mStopListeningDelayInMs = 4000;
     private long mTransitionMinimumDelay = 1200;
+
+    private List<Float> mUserVoiceDecibelList = new ArrayList<>();
 
     @Override
     public void init(Context context) {
@@ -95,7 +100,11 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
         if (mProgressView != null)
             mProgressView.onRmsChanged(v);
+
+        mUserVoiceDecibelList.add(v);
+
     }
+
 
     @Override
     public void onPartialResults(final Bundle bundle) {
@@ -144,9 +153,12 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
             if (mDelegate != null) {
                 if (result == null || result.trim().isEmpty()) {
                     Log.i(getClass().getSimpleName(), "No speech results, getting partial");
-                    onError(ERROR_SILENCE);
-                }
-                else {
+                    if (isUserSilent())
+                        onError(ERROR_SILENCE);
+                    else
+                        onError(ERROR_AMBIGUATE);
+
+                } else {
                     Log.i(getClass().getSimpleName(), "Result : [" + result + "]");
                     mDelegate.onSpeechResult(result.trim());
                 }
@@ -161,6 +173,25 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
             mProgressView.onResultOrOnError();
 
         initSpeechRecognizer(mContext);
+        clearUserVoiceDecibels();
+    }
+
+    private boolean isUserSilent() {
+        if (mUserVoiceDecibelList == null || mUserVoiceDecibelList.isEmpty()) return true;
+
+        int decibelCountAboveEight = 0;
+        for (float decibel : mUserVoiceDecibelList) {
+            if (decibel >= DECIBEL_SENSOR)
+                decibelCountAboveEight++;
+        }
+
+        int decibelListSize = mUserVoiceDecibelList.size();
+        int decibelPercent = (decibelCountAboveEight * 100) / decibelListSize;
+        return decibelPercent <= 40;
+    }
+
+    private void clearUserVoiceDecibels(){
+        mUserVoiceDecibelList.clear();
     }
 
     @Override
@@ -318,9 +349,11 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
             if (mDelegate != null) {
                 if (result == null || result.trim().isEmpty()) {
                     Log.i(getClass().getSimpleName(), "No speech results, getting partial");
-                    onError(ERROR_SILENCE);
-                }
-                else {
+                    if (isUserSilent())
+                        onError(ERROR_SILENCE);
+                    else
+                        onError(ERROR_AMBIGUATE);
+                } else {
                     Log.i(getClass().getSimpleName(), "Result : [" + result + "]");
                     mDelegate.onSpeechResult(result.trim());
                 }
@@ -337,12 +370,13 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
         initSpeechRecognizer(mContext);
     }
 
-    public void recreateSpeechRecognizer(){
+    public void recreateSpeechRecognizer() {
         mIsListening = false;
         if (mProgressView != null)
             mProgressView.onResultOrOnError();
 
         initSpeechRecognizer(mContext);
+        clearUserVoiceDecibels();
     }
 
     @Override
