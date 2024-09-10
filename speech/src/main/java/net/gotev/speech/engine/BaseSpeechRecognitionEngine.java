@@ -184,7 +184,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
         int decibelListSize = mUserVoiceDecibelList.size();
         int decibelPercent = (decibelCountAboveEight * 100) / decibelListSize;
-        if (decibelPercent <= 5)
+        if (decibelPercent <= 2)
             onError(ERROR_ABSOLUTE_SILENT);
         else if(decibelPercent <= 20)
             onError(ERROR_SILENCE);
