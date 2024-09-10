@@ -171,7 +171,6 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
             mProgressView.onResultOrOnError();
 
         initSpeechRecognizer(mContext);
-        clearUserVoiceDecibels();
     }
 
     private void checkUserIsSilent() {
@@ -378,7 +377,6 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
             mProgressView.onResultOrOnError();
 
         initSpeechRecognizer(mContext);
-        clearUserVoiceDecibels();
     }
 
     @Override
