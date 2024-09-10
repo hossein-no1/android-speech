@@ -12,6 +12,7 @@ public class SpeechRecognitionException extends Exception {
     private int code;
     public static final int ERROR_SILENCE = 101;
     public static final int ERROR_AMBIGUATE = 102;
+    public static final int ERROR_ABSOLUTE_SILENT = 103;
 
     public SpeechRecognitionException(int code) {
         super(getMessage(code));
@@ -67,6 +68,10 @@ public class SpeechRecognitionException extends Exception {
 
             case ERROR_AMBIGUATE:
                 message = code + " - Input is received but ambiguate";
+                break;
+
+                case ERROR_ABSOLUTE_SILENT:
+                message = code + " - User is absolutely silent";
                 break;
 
             default:

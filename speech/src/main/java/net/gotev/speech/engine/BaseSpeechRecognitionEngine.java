@@ -1,5 +1,6 @@
 package net.gotev.speech.engine;
 
+import static net.gotev.speech.SpeechRecognitionException.ERROR_ABSOLUTE_SILENT;
 import static net.gotev.speech.SpeechRecognitionException.ERROR_AMBIGUATE;
 import static net.gotev.speech.SpeechRecognitionException.ERROR_SILENCE;
 
@@ -153,10 +154,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
             if (mDelegate != null) {
                 if (result == null || result.trim().isEmpty()) {
                     Log.i(getClass().getSimpleName(), "No speech results, getting partial");
-                    if (isUserSilent())
-                        onError(ERROR_SILENCE);
-                    else
-                        onError(ERROR_AMBIGUATE);
+                    checkUserIsSilent();
 
                 } else {
                     Log.i(getClass().getSimpleName(), "Result : [" + result + "]");
@@ -176,8 +174,8 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
         clearUserVoiceDecibels();
     }
 
-    private boolean isUserSilent() {
-        if (mUserVoiceDecibelList == null || mUserVoiceDecibelList.isEmpty()) return true;
+    private void checkUserIsSilent() {
+        if (mUserVoiceDecibelList == null || mUserVoiceDecibelList.isEmpty()) onError(ERROR_ABSOLUTE_SILENT);
 
         int decibelCountAboveEight = 0;
         for (float decibel : mUserVoiceDecibelList) {
@@ -187,7 +185,14 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
         int decibelListSize = mUserVoiceDecibelList.size();
         int decibelPercent = (decibelCountAboveEight * 100) / decibelListSize;
-        return decibelPercent <= 40;
+        if (decibelPercent <= 5)
+            onError(ERROR_ABSOLUTE_SILENT);
+        else if(decibelPercent <= 20)
+            onError(ERROR_SILENCE);
+        else
+            onError(ERROR_AMBIGUATE);
+
+        clearUserVoiceDecibels();
     }
 
     private void clearUserVoiceDecibels(){
@@ -349,10 +354,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
             if (mDelegate != null) {
                 if (result == null || result.trim().isEmpty()) {
                     Log.i(getClass().getSimpleName(), "No speech results, getting partial");
-                    if (isUserSilent())
-                        onError(ERROR_SILENCE);
-                    else
-                        onError(ERROR_AMBIGUATE);
+                    checkUserIsSilent();
                 } else {
                     Log.i(getClass().getSimpleName(), "Result : [" + result + "]");
                     mDelegate.onSpeechResult(result.trim());
