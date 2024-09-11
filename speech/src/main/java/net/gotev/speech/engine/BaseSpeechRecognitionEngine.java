@@ -29,7 +29,7 @@ import java.util.Locale;
 public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     private static final String LOG_TAG = BaseSpeechRecognitionEngine.class.getSimpleName();
     // Decibel is between -2 and 10
-    private static final float DECIBEL_SENSOR = 8F;
+    private static final float DECIBEL_SENSOR = 7F;
 
     private Context mContext;
 
