@@ -2,6 +2,7 @@ package net.gotev.speech.engine;
 
 import static net.gotev.speech.SpeechRecognitionException.ERROR_ABSOLUTE_SILENT;
 import static net.gotev.speech.SpeechRecognitionException.ERROR_AMBIGUATE;
+import static net.gotev.speech.SpeechRecognitionException.ERROR_NETWORK_TIMEOUT;
 import static net.gotev.speech.SpeechRecognitionException.ERROR_SILENCE;
 
 import android.content.Context;
@@ -294,7 +295,10 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
         }
 
         // Set timeout to stop listening
-        handler.postDelayed(this::stopListening, networkTimeoutMillis);
+        handler.postDelayed(() -> {
+            stopListening();
+            onError(ERROR_NETWORK_TIMEOUT);
+        }, networkTimeoutMillis);
     }
 
     @Override
