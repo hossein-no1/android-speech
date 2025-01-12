@@ -13,7 +13,6 @@ public class SpeechRecognitionException extends Exception {
     public static final int ERROR_SILENCE = 101;
     public static final int ERROR_AMBIGUATE = 102;
     public static final int ERROR_ABSOLUTE_SILENT = 103;
-    public static final int ERROR_NETWORK_TIMEOUT = 104;
 
     public SpeechRecognitionException(int code) {
         super(getMessage(code));
@@ -73,10 +72,6 @@ public class SpeechRecognitionException extends Exception {
 
             case ERROR_ABSOLUTE_SILENT:
                 message = code + " - User is absolutely silent";
-                break;
-
-            case ERROR_NETWORK_TIMEOUT:
-                message = code + " - Network timeout meets";
                 break;
 
             default:
