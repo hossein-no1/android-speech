@@ -6,6 +6,7 @@ import static net.gotev.speech.SpeechRecognitionException.ERROR_SILENCE;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -262,6 +263,11 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
         if (progressView != null && !(progressView.getParent() instanceof LinearLayout))
             throw new IllegalArgumentException("progressView must be put inside a LinearLayout!");
+
+        Locale.setDefault(new Locale("fa", "IR"));
+        Configuration config = mContext.getResources().getConfiguration();
+        config.setLocale(new Locale("fa", "IR"));
+        mContext.createConfigurationContext(config);
 
         final Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
                 .putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
