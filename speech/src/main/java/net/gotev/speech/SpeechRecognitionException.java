@@ -70,7 +70,7 @@ public class SpeechRecognitionException extends Exception {
                 message = code + " - Input is received but ambiguate";
                 break;
 
-                case ERROR_ABSOLUTE_SILENT:
+            case ERROR_ABSOLUTE_SILENT:
                 message = code + " - User is absolutely silent";
                 break;
 

@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
@@ -51,6 +53,8 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     private long mLastActionTimestamp;
     private long mStopListeningDelayInMs = 4000;
     private long mTransitionMinimumDelay = 1200;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private long networkTimeoutMillis = 3_000;
 
     private List<Float> mUserVoiceDecibelList = new ArrayList<>();
 
@@ -110,6 +114,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     @Override
     public void onPartialResults(final Bundle bundle) {
         mDelayedStopListening.resetTimer();
+        handler.removeCallbacksAndMessages(null);
 
         final List<String> partialResults = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         final List<String> unstableData = bundle.getStringArrayList("android.speech.extra.UNSTABLE_TEXT");
@@ -134,6 +139,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
     @Override
     public void onResults(final Bundle bundle) {
+        handler.removeCallbacksAndMessages(null);
         mDelayedStopListening.cancel();
 
         final List<String> results = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
@@ -201,6 +207,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     @Override
     public void onError(final int code) {
         Logger.error(LOG_TAG, "Speech recognition error", new SpeechRecognitionException(code));
+        handler.removeCallbacksAndMessages(null);
         recreateSpeechRecognizer();
     }
 
@@ -286,6 +293,12 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
             Logger.error(getClass().getSimpleName(),
                     "Unhandled exception in delegate onStartOfSpeech", exc);
         }
+
+        // Set timeout to stop listening
+        handler.postDelayed(() -> {
+            stopListening();
+            onError(SpeechRecognizer.ERROR_NETWORK_TIMEOUT);
+        }, networkTimeoutMillis);
     }
 
     @Override
@@ -431,6 +444,11 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     @Override
     public void setTransitionMinimumDelay(long milliseconds) {
         this.mTransitionMinimumDelay = milliseconds;
+    }
+
+    @Override
+    public void setNetworkTimeoutMillis(long milliseconds) {
+        this.networkTimeoutMillis = milliseconds;
     }
 
     @Override
