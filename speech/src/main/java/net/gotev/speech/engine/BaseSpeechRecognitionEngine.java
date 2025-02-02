@@ -270,8 +270,8 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
                 .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "fa-IR")
                 .putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "fa-IR")
                 .putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, true)
-                .putExtra("android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES", new String[]{"fa"})
-                .putExtra(RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES, new String[]{mLocale.getLanguage()});
+                .putExtra("android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES", new String[]{"fa-IR"})
+                .putExtra(RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES, new String[]{"fa-IR"});
 
         if (mCallingPackage != null && !mCallingPackage.isEmpty()) {
             intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, mCallingPackage);
