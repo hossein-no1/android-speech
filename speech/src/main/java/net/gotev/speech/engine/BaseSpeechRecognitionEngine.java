@@ -267,11 +267,11 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
                 .putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
                 .putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, mGetPartialResults)
                 .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "fa-IR")
-                .putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "fa-IR")
+                .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
+                .putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en-US")
                 .putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, true)
-                .putExtra("android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES", new String[]{"fa-IR"})
-                .putExtra(RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES, new String[]{"fa-IR"});
+                .putExtra("android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES", new String[]{"en-US"})
+                .putExtra(RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES, new String[]{"en-US"});
 
         if (mCallingPackage != null && !mCallingPackage.isEmpty()) {
             intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, mCallingPackage);
