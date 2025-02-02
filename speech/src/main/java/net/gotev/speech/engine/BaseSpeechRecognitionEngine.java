@@ -259,7 +259,8 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
                 .putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
                 .putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, mGetPartialResults)
                 .putExtra(RecognizerIntent.EXTRA_LANGUAGE, mLocale.getLanguage())
-                .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                .putExtra(RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES, new String[]{mLocale.getLanguage()});
 
         if (mCallingPackage != null && !mCallingPackage.isEmpty()) {
             intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, mCallingPackage);
