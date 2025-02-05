@@ -6,6 +6,7 @@ import static net.gotev.speech.SpeechRecognitionException.ERROR_SILENCE;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -54,7 +55,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     private long mStopListeningDelayInMs = 4000;
     private long mTransitionMinimumDelay = 1200;
     private final Handler handler = new Handler(Looper.getMainLooper());
-    private long networkTimeoutMillis = 3_000;
+    private long networkTimeoutMillis = 10_000;
 
     private List<Float> mUserVoiceDecibelList = new ArrayList<>();
 
@@ -180,7 +181,8 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     }
 
     private void checkUserIsSilent() {
-        if (mUserVoiceDecibelList == null || mUserVoiceDecibelList.isEmpty()) onError(ERROR_ABSOLUTE_SILENT);
+        if (mUserVoiceDecibelList == null || mUserVoiceDecibelList.isEmpty())
+            onError(ERROR_ABSOLUTE_SILENT);
 
         int decibelCountAboveEight = 0;
         for (float decibel : mUserVoiceDecibelList) {
@@ -192,7 +194,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
         int decibelPercent = (decibelCountAboveEight * 100) / decibelListSize;
         if (decibelPercent <= 2)
             onError(ERROR_ABSOLUTE_SILENT);
-        else if(decibelPercent <= 20)
+        else if (decibelPercent <= 20)
             onError(ERROR_SILENCE);
         else
             onError(ERROR_AMBIGUATE);
@@ -200,7 +202,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
         clearUserVoiceDecibels();
     }
 
-    private void clearUserVoiceDecibels(){
+    private void clearUserVoiceDecibels() {
         mUserVoiceDecibelList.clear();
     }
 
@@ -262,11 +264,22 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
         if (progressView != null && !(progressView.getParent() instanceof LinearLayout))
             throw new IllegalArgumentException("progressView must be put inside a LinearLayout!");
 
+        Locale.setDefault(new Locale("fa", "IR"));
+        Configuration config = mContext.getResources().getConfiguration();
+        config.setLocale(new Locale("fa", "IR"));
+        mContext.createConfigurationContext(config);
+
+        ArrayList<String> languages = new ArrayList<>();
+        languages.add("fa-IR");
+
         final Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
                 .putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
                 .putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, mGetPartialResults)
-                .putExtra(RecognizerIntent.EXTRA_LANGUAGE, mLocale.getLanguage())
-                .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "fa-IR")
+                .putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "fa-IR")
+                .putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, true)
+                .putExtra(RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES, languages)
+                .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
 
         if (mCallingPackage != null && !mCallingPackage.isEmpty()) {
             intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, mCallingPackage);
