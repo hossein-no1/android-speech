@@ -270,13 +270,13 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
         mContext.createConfigurationContext(config);
 
         ArrayList<String> languages = new ArrayList<>();
-        languages.add("fa-AF");
+        languages.add("fa-IR");
 
         final Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
                 .putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
                 .putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, mGetPartialResults)
-                .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "fa-AF")
-                .putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "fa-AF")
+                .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "fa-IR")
+                .putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "fa-IR")
                 .putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, true)
                 .putExtra(RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES, languages)
                 .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
