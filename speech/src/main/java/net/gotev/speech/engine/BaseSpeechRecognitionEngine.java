@@ -17,11 +17,11 @@ import android.util.Log;
 import android.widget.LinearLayout;
 
 import net.gotev.speech.DelayedOperation;
-import net.gotev.speech.SpeechDelegate;
 import net.gotev.speech.GoogleVoiceTypingDisabledException;
+import net.gotev.speech.Logger;
+import net.gotev.speech.SpeechDelegate;
 import net.gotev.speech.SpeechRecognitionException;
 import net.gotev.speech.SpeechRecognitionNotAvailable;
-import net.gotev.speech.Logger;
 import net.gotev.speech.ui.SpeechProgressView;
 
 import java.util.ArrayList;
@@ -35,6 +35,15 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     private static final float DECIBEL_SENSOR = 7F;
 
     private Context mContext;
+    private long mNetworkTimeoutMs = 10_000; // Default 10 seconds timeout
+    private final Runnable mNetworkTimeoutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (mIsListening) {
+                onError(SpeechRecognizer.ERROR_NETWORK_TIMEOUT);
+            }
+        }
+    };
 
     private SpeechRecognizer mSpeechRecognizer;
     private SpeechDelegate mDelegate;
@@ -55,7 +64,6 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     private long mStopListeningDelayInMs = 4000;
     private long mTransitionMinimumDelay = 1200;
     private final Handler handler = new Handler(Looper.getMainLooper());
-    private long networkTimeoutMillis = 10_000;
 
     private List<Float> mUserVoiceDecibelList = new ArrayList<>();
 
@@ -140,7 +148,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
     @Override
     public void onResults(final Bundle bundle) {
-        handler.removeCallbacksAndMessages(null);
+        handler.removeCallbacks(mNetworkTimeoutRunnable);
         mDelayedStopListening.cancel();
 
         final List<String> results = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
@@ -208,6 +216,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
     @Override
     public void onError(final int code) {
+        handler.removeCallbacks(mNetworkTimeoutRunnable);
         Logger.error(LOG_TAG, "Speech recognition error", new SpeechRecognitionException(code));
         handler.removeCallbacksAndMessages(null);
         recreateSpeechRecognizer();
@@ -231,7 +240,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
     @Override
     public String getPartialResultsAsString() {
-        final StringBuilder out = new StringBuilder("");
+        final StringBuilder out = new StringBuilder();
 
         for (final String partial : mPartialData) {
             out.append(partial).append(" ");
@@ -291,6 +300,8 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
         try {
             mSpeechRecognizer.startListening(intent);
+            // Start network timeout timer
+            handler.postDelayed(mNetworkTimeoutRunnable, mNetworkTimeoutMs);
         } catch (final SecurityException exc) {
             throw new GoogleVoiceTypingDisabledException();
         }
@@ -305,12 +316,6 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
             Logger.error(getClass().getSimpleName(),
                     "Unhandled exception in delegate onStartOfSpeech", exc);
         }
-
-        // Set timeout to stop listening
-        handler.postDelayed(() -> {
-            stopListening();
-            onError(SpeechRecognizer.ERROR_NETWORK_TIMEOUT);
-        }, networkTimeoutMillis);
     }
 
     @Override
@@ -331,6 +336,9 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     @Override
     public void stopListening() {
         if (!mIsListening) return;
+
+        // Remove network timeout callback
+        handler.removeCallbacks(mNetworkTimeoutRunnable);
 
         if (throttleAction()) {
             Logger.debug(getClass().getSimpleName(), "Hey man calm down! Throttling stop to prevent disaster!");
@@ -459,17 +467,15 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     }
 
     @Override
-    public void setNetworkTimeoutMillis(long milliseconds) {
-        this.networkTimeoutMillis = milliseconds;
-    }
-
-    @Override
     public void setStopListeningAfterInactivity(long milliseconds) {
         this.mStopListeningDelayInMs = milliseconds;
     }
 
     @Override
     public void shutdown() {
+        // Remove any pending network timeout callbacks
+        handler.removeCallbacks(mNetworkTimeoutRunnable);
+
         if (mSpeechRecognizer != null) {
             try {
                 mSpeechRecognizer.stopListening();
@@ -480,6 +486,19 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
         }
 
         unregisterDelegate();
+    }
+
+    /**
+     * Set the network timeout duration in milliseconds
+     *
+     * @param timeoutMs timeout duration in milliseconds
+     */
+    @Override
+    public void setNetworkTimeout(long timeoutMs) {
+        if (timeoutMs < 0) {
+            throw new IllegalArgumentException("Timeout duration must be positive");
+        }
+        this.mNetworkTimeoutMs = timeoutMs;
     }
 
 }
