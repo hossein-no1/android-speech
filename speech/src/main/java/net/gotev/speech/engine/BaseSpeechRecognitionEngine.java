@@ -24,6 +24,7 @@ import net.gotev.speech.SpeechRecognitionException;
 import net.gotev.speech.SpeechRecognitionNotAvailable;
 import net.gotev.speech.ui.SpeechProgressView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,17 +34,9 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     private static final String LOG_TAG = BaseSpeechRecognitionEngine.class.getSimpleName();
     // Decibel is between -2 and 10
     private static final float DECIBEL_SENSOR = 7F;
+    private long mSilentTimeout = 10_000;
 
     private Context mContext;
-    private long mNetworkTimeoutMs = 10_000; // Default 10 seconds timeout
-    private final Runnable mNetworkTimeoutRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (mIsListening) {
-                onError(SpeechRecognizer.ERROR_NETWORK_TIMEOUT);
-            }
-        }
-    };
 
     private SpeechRecognizer mSpeechRecognizer;
     private SpeechDelegate mDelegate;
@@ -65,7 +58,17 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     private long mTransitionMinimumDelay = 1200;
     private final Handler handler = new Handler(Looper.getMainLooper());
 
-    private List<Float> mUserVoiceDecibelList = new ArrayList<>();
+    private final List<Float> mUserVoiceDecibelList = new ArrayList<>();
+
+    private final Runnable silenceTimeoutRunnable = () -> {
+        if (mIsListening) {
+            if (!isInternetAvailable())
+                Log.i("hossein", "ERROR_INTERNET_TIMEOUT");
+            else
+                Log.i("hossein", "ERROR_SILENT_TIMEOUT");
+            stopListening();
+        }
+    };
 
     @Override
     public void init(Context context) {
@@ -117,8 +120,10 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
         mUserVoiceDecibelList.add(v);
 
+        // Reset silence timer on any voice activity
+        handler.removeCallbacks(silenceTimeoutRunnable);
+        handler.postDelayed(silenceTimeoutRunnable, mSilentTimeout);
     }
-
 
     @Override
     public void onPartialResults(final Bundle bundle) {
@@ -148,7 +153,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
     @Override
     public void onResults(final Bundle bundle) {
-        handler.removeCallbacks(mNetworkTimeoutRunnable);
+        handler.removeCallbacks(silenceTimeoutRunnable);
         mDelayedStopListening.cancel();
 
         final List<String> results = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
@@ -189,7 +194,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     }
 
     private void checkUserIsSilent() {
-        if (mUserVoiceDecibelList == null || mUserVoiceDecibelList.isEmpty())
+        if (mUserVoiceDecibelList.isEmpty())
             onError(ERROR_ABSOLUTE_SILENT);
 
         int decibelCountAboveEight = 0;
@@ -216,7 +221,7 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
     @Override
     public void onError(final int code) {
-        handler.removeCallbacks(mNetworkTimeoutRunnable);
+        handler.removeCallbacks(silenceTimeoutRunnable);
         Logger.error(LOG_TAG, "Speech recognition error", new SpeechRecognitionException(code));
         handler.removeCallbacksAndMessages(null);
         recreateSpeechRecognizer();
@@ -300,8 +305,8 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
         try {
             mSpeechRecognizer.startListening(intent);
-            // Start network timeout timer
-            handler.postDelayed(mNetworkTimeoutRunnable, mNetworkTimeoutMs);
+            // Start initial silence timeout
+            handler.postDelayed(silenceTimeoutRunnable, mSilentTimeout);
         } catch (final SecurityException exc) {
             throw new GoogleVoiceTypingDisabledException();
         }
@@ -337,8 +342,8 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
     public void stopListening() {
         if (!mIsListening) return;
 
-        // Remove network timeout callback
-        handler.removeCallbacks(mNetworkTimeoutRunnable);
+        // Remove silence timeout
+        handler.removeCallbacks(silenceTimeoutRunnable);
 
         if (throttleAction()) {
             Logger.debug(getClass().getSimpleName(), "Hey man calm down! Throttling stop to prevent disaster!");
@@ -473,8 +478,8 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
     @Override
     public void shutdown() {
-        // Remove any pending network timeout callbacks
-        handler.removeCallbacks(mNetworkTimeoutRunnable);
+        // Remove silence timeout
+        handler.removeCallbacks(silenceTimeoutRunnable);
 
         if (mSpeechRecognizer != null) {
             try {
@@ -498,7 +503,17 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
         if (timeoutMs < 0) {
             throw new IllegalArgumentException("Timeout duration must be positive");
         }
-        this.mNetworkTimeoutMs = timeoutMs;
+        this.mSilentTimeout = timeoutMs;
+    }
+
+    private static boolean isInternetAvailable() {
+        try {
+            Process process = Runtime.getRuntime().exec("/system/bin/ping -c 1 8.8.8.8");
+            int exitCode = process.waitFor();
+            return exitCode == 0;
+        } catch (IOException | InterruptedException e) {
+            return false;
+        }
     }
 
 }
