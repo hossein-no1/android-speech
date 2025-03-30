@@ -41,7 +41,7 @@ public interface SpeechRecognitionEngine extends RecognitionListener {
 
     void setTransitionMinimumDelay(long milliseconds);
 
-    void setNetworkTimeoutMillis(long milliseconds);
+    void setNetworkTimeout(long timeoutMs);
 
     void setStopListeningAfterInactivity(long milliseconds);
 
