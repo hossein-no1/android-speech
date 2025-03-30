@@ -24,7 +24,9 @@ import net.gotev.speech.SpeechRecognitionException;
 import net.gotev.speech.SpeechRecognitionNotAvailable;
 import net.gotev.speech.ui.SpeechProgressView;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -62,10 +64,10 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
 
     private final Runnable silenceTimeoutRunnable = () -> {
         if (mIsListening) {
-            if (!isInternetAvailable())
-                Log.i("hossein", "ERROR_INTERNET_TIMEOUT");
+            if (isInternetAvailable())
+                onError(SpeechRecognizer.ERROR_SPEECH_TIMEOUT);
             else
-                Log.i("hossein", "ERROR_SILENT_TIMEOUT");
+                onError(SpeechRecognizer.ERROR_NETWORK_TIMEOUT);
             stopListening();
         }
     };
@@ -119,10 +121,6 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
             mProgressView.onRmsChanged(v);
 
         mUserVoiceDecibelList.add(v);
-
-        // Reset silence timer on any voice activity
-        handler.removeCallbacks(silenceTimeoutRunnable);
-        handler.postDelayed(silenceTimeoutRunnable, mSilentTimeout);
     }
 
     @Override
@@ -506,14 +504,24 @@ public class BaseSpeechRecognitionEngine implements SpeechRecognitionEngine {
         this.mSilentTimeout = timeoutMs;
     }
 
-    private static boolean isInternetAvailable() {
+    public static boolean isInternetAvailable() {
         try {
             Process process = Runtime.getRuntime().exec("/system/bin/ping -c 1 8.8.8.8");
-            int exitCode = process.waitFor();
-            return exitCode == 0;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("bytes from")) {
+                    process.destroy();
+                    return true;
+                }
+            }
+
+            process.waitFor();
         } catch (IOException | InterruptedException e) {
             return false;
         }
+        return false;
     }
 
 }
